@@ -28,7 +28,7 @@ void setup() {
 uint8_t wait_byte()
 {
   while (Serial.available() == 0);
-
+  
   return (uint8_t)Serial.read();
 }
 
@@ -52,6 +52,7 @@ void loop()
   uint16_t rotate = 0;
   ((uint8_t*)&rotate)[1] = wait_byte();
   ((uint8_t*)&rotate)[0] = wait_byte();
+  rotate *= 75; // NOTE(annad): monochr.h, rotate = 75 ~ 1nm
 
   bool processing = true;
   while (processing)
@@ -60,7 +61,7 @@ void loop()
     {
       case 'L':
       {
-        for (int i=0; i <= rotate; i++) 
+        for (int i = 0; i <= rotate; i++) 
         {
           // Включаем 4 обмотку, отключаем 2
           digitalWrite(monochr_pin_4, LOW);
@@ -135,4 +136,3 @@ void loop()
 }
 
 // vim:tabstop=2 shiftwidth=2 expandtab
-
