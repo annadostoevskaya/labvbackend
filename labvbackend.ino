@@ -1,5 +1,14 @@
+/*
+Author: github.com/annadostoevskaya
+File: labvbackend.ino
+Date: 12/09/23 14:22:03
+
+Description: <empty> 
+*/
+
 #include <stdint.h>
 #include <Adafruit_INA219.h>
+#include "unique_ptr.h"
 
 #define D_PRINT(var) do {     \
     Serial.print(#var ": ");  \
@@ -31,7 +40,7 @@ T serial_get_data()
 {
   T data = 0;
   size_t byte_count = 0;
-  while (byte_count == 0) 
+  while (byte_count == 0 && byte_count != sizeof(T)) 
   {
     byte_count = Serial.readBytes(reinterpret_cast<uint8_t*>(&data), sizeof(T));
   }
@@ -42,18 +51,16 @@ T serial_get_data()
   return data;
 }
 
-Adafruit_INA219 *g_ina219;
+auto g_ina219 = unique_ptr<Adafruit_INA219>(new Adafruit_INA219);
 
 void setup() 
 {
   Serial.begin(115200);
   
-  g_ina219 = new Adafruit_INA219();
-  
   if (!g_ina219->begin()) 
     panic("Failed to find INA219 chip!");
 
-  g_ina219->setCalibration_16V_400mA();
+  g_ina219->setCalibration_32V_2A();
   
   // Устанавливаем пин как выход для управления монохроматором
   pinMode(monochr_pin_1, OUTPUT);
@@ -96,8 +103,6 @@ void loop()
  
   // digitalWrite(led_pin, HIGH); // включаем светодиод 
   // delay(250); // ждем
-  uint16_t rotate = MONOCHR_TO_NM * serial_get_data<uint16_t>();
-  return;
     
   bool processing = true;
   while (processing)
