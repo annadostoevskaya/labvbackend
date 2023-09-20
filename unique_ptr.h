@@ -40,3 +40,4 @@ public:
   T* get() { return pointer_; }
   const T* get() const { return pointer_; }
 };
+
