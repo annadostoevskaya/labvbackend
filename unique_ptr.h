@@ -5,15 +5,18 @@ Date: 20/09/23 18:26:11
 
 Description: custom `std::unique_ptr` class. It's no ship code! 
   We have little problem with unique_ptr<T[]> specialization!
-  Also, we don't implement swap for this class! 
+  Also, we don't implement swap for this class, 
+  equality/inequality operators, move asssignment.
 */
+
+#pragma once
 
 template <typename T>
 class unique_ptr
 {
   T* pointer_;
 public:
-  unique_ptr() : pointer_(nullptr) {}
+  unique_ptr() : unique_ptr(nullptr) {}
   unique_ptr(T* pointer) : pointer_(pointer) {}
   unique_ptr(unique_ptr<T>&& uniq)
   {
@@ -40,4 +43,3 @@ public:
   T* get() { return pointer_; }
   const T* get() const { return pointer_; }
 };
-

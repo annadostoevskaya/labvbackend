@@ -7,54 +7,29 @@ Description: <empty>
 */
 
 #include <stdint.h>
-#include <stdio.h>
 #include <Adafruit_INA219.h>
+#include "monochr.h"
 #include "unique_ptr.h"
 
+#define DEBUG_INA219_DISABLED
+#define RELEASE_MODE
 #ifndef RELEASE_MODE
-#define D_PRINT(var) do {     \
-    Serial.print(#var ": ");  \
-    Serial.print(var);        \
-    Serial.print('\n');       \
-  } while(0);
-#else
-#define D_PRINT(var)
+# define DEBUG_MODE
 #endif
 
-class Monochr
-{
-public:
-  enum { to_nm = 75 };
-  union
-  {
-    int pins[4];
-    struct 
-    {
-      int pin_1;
-      int pin_2;
-      int pin_3;
-      int pin_4;
-    };
-  };
-
-  Monochr(int pin_1, int pin_2, int pin_3, int pin_4) 
-    : pin_1(pin_1)
-    , pin_2(pin_2)
-    , pin_3(pin_3)
-    , pin_4(pin_4) 
-  {
-    for (size_t i = 0; i < sizeof(pins) / sizeof(*pins); i += 1)
-    {
-      pinMode(this->pins[i], OUTPUT);
-      digitalWrite(this->pins[i], HIGH);
-    }
-  };
-  ~Monochr() = default;
-};
+#ifdef DEBUG_MODE
+# define D_PRINT(var) do {      \
+    Serial.print(#var ": ");    \
+    Serial.print(var);          \
+    Serial.print('\n');         \
+  } while(0);
+#else
+# define D_PRINT(var)
+#endif
 
 Monochr monochr(10, 11, 12, 13);
 
-// int led_pin = 13; // пин, к которому подключен светодиод
+// int16_t led_pin = 13; // пин, к которому подключен светодиод
 
 void panic(const char *msg)
 {
@@ -74,15 +49,18 @@ template <typename T>
 T serial_get_data()
 {
   T data = 0;
+#if 0
+  uint8_t *p_data = reinterpret_cast<uint8_t*>(&data);
+  for (int16_t i = sizeof(T) - 1; i >= 0; i -= 1)
+    p_data[i] = serial_wait_byte();
+  D_PRINT(sizeof(T));
+#else
   size_t byte_count = 0;
-  while (byte_count == 0 && byte_count != sizeof(T)) 
-  {
+  while (byte_count == 0 && byte_count != sizeof(T))
     byte_count = Serial.readBytes(reinterpret_cast<uint8_t*>(&data), sizeof(T));
-  }
-
   D_PRINT(byte_count);
+#endif
   D_PRINT(data);
-
   return data;
 }
 
@@ -92,8 +70,12 @@ void setup()
 {
   Serial.begin(115200);
   
-  if (!g_ina219->begin()) 
+  if (!g_ina219->begin())
+  {
+#ifndef DEBUG_INA219_DISABLED 
     panic("Failed to find INA219 chip!");
+#endif
+  }
 
   g_ina219->setCalibration_32V_2A();
   
@@ -101,15 +83,6 @@ void setup()
   D_PRINT((size_t)&g_ina219);
   
   // pinMode(led_pin, OUTPUT); //светодиод
-}
-
-////////////////////////////////////////////////////////
-// monochr.c
-// NOTE(annad): monochr.h, rotate = 75 ~ 1nm
-
-void rotate_monochr(int first, int second, int third, int fours)
-{
-
 }
 
 ////////////////////////////////////////////////////////
@@ -138,74 +111,22 @@ void loop()
     {
       case 'L':
       {
-        uint16_t rotate = Monochr::to_nm * serial_get_data<uint16_t>();
-        for (int i = 0; i <= rotate; i++) 
-        {
-          /*
-          for (size_t i = 3; i >= 0; i -= 1)
-          {
-            digitalWrite(pins[i], LOW); // 4, 3, 2, 1
-            digitalWrite(pins[(i + 2) % 4], HIGH); // 2-1, 1-1, 4-1, 3-1  
-            delay(4);
-          }
-          */
-          // Включаем 4 обмотку, отключаем 2
-          digitalWrite(monochr.pin_4, LOW);
-          digitalWrite(monochr.pin_2, HIGH);
-          delay(4);
-
-          // Включаем 3 обмотку, выключаем 1
-          digitalWrite(monochr.pin_3, LOW);
-          digitalWrite(monochr.pin_1, HIGH);
-          delay(4);
-
-          // Включаем 2, выключаем 4 обмотку, 
-          digitalWrite(monochr.pin_2, LOW);
-          digitalWrite(monochr.pin_4, HIGH);
-          delay(4);
-
-          // Выключаем 3 обмотку, включаем 1
-          digitalWrite(monochr.pin_1, LOW);
-          digitalWrite(monochr.pin_3, HIGH);
-          delay(4);
-        }
+        uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
+        D_PRINT(rotate / Monochr::to_nm);
+        D_PRINT(rotate);
+        for (uint32_t i = 0; i <= rotate; i++)
+          // monochr.turn_left();
         
         command_pc = 'K';
       } break;
           
       case 'R':
       {
-        uint16_t rotate = Monochr::to_nm * serial_get_data<uint16_t>();
-        for (int i = 0; i <= rotate; i++) {
-          /* 
-          for (size_t i = 0; i < 4; i += 1)
-          {
-            digitalWrite(pins[i], HIGH); // 1, 2, 3, 4
-            digitalWrite(pins[(i + 2) % 4], LOW); // 3-1, 4-1, 1-1, 2-1,  
-            delay(4);
-          } 
-          */
-            
-          // Включаем 1 обмотку, отключаем 3
-          digitalWrite(monochr.pin_1, LOW);
-          digitalWrite(monochr.pin_3, HIGH);
-          delay(4);
-
-          // Включаем 2 обмотку, выключаем 4
-          digitalWrite(monochr.pin_2, LOW);
-          digitalWrite(monochr.pin_4, HIGH);
-          delay(4);
-
-          // Включаем 3, выключаем 1 обмотку
-          digitalWrite(monochr.pin_3, LOW);
-          digitalWrite(monochr.pin_1, HIGH);
-          delay(4);
-
-          // Включаем 4, выключаем 2 обмотку,
-          digitalWrite(monochr.pin_4, LOW);
-          digitalWrite(monochr.pin_2, HIGH);
-          delay(4);
-        }
+        uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
+        D_PRINT(rotate / Monochr::to_nm);
+        D_PRINT(rotate);
+        for (uint32_t i = 0; i <= rotate; i++) 
+          // monochr.turn_right();
         
         command_pc = 'K';
       } break;
