@@ -27,7 +27,7 @@ Monochr::Monochr(int16_t pin_1, int16_t pin_2, int16_t pin_3, int16_t pin_4)
 
 void Monochr::turn_right()
 {
-  for (size_t i = 0; i < sizeof(pins) / sizeof(*pins); i += 1)
+  for (int16_t i = 0; i < sizeof(pins) / sizeof(*pins); i += 1)
   {
     digitalWrite(pins[i], HIGH); // 1, 2, 3, 4
     digitalWrite(pins[(i + 2) % 4], LOW); // 3-1, 4-1, 1-1, 2-1,  
@@ -37,7 +37,7 @@ void Monochr::turn_right()
 
 void Monochr::turn_left()
 {
-  for (size_t i = sizeof(pins) / sizeof(*pins) - 1; i >= 0; i -= 1)
+  for (int16_t i = sizeof(pins) / sizeof(*pins) - 1; i >= 0; i -= 1)
   {
     digitalWrite(pins[i], LOW); // 4, 3, 2, 1
     digitalWrite(pins[(i + 2) % 4], HIGH); // 2-1, 1-1, 4-1, 3-1  

@@ -3,16 +3,17 @@ Author: github.com/annadostoevskaya
 File: labvbackend.ino
 Date: 12/09/23 14:22:03
 
-Description: <empty> 
+Description: Orange - TX, Blue - RX
 */
 
 #include <stdint.h>
 #include <Adafruit_INA219.h>
+// #include <SoftwareSerial.h>
 #include "monochr.h"
 #include "unique_ptr.h"
 
 #define DEBUG_INA219_DISABLED
-#define RELEASE_MODE
+// #define RELEASE_MODE
 #ifndef RELEASE_MODE
 # define DEBUG_MODE
 #endif
@@ -46,35 +47,46 @@ uint8_t serial_wait_byte()
 }
 
 template <typename T>
+void swap_endians(T& data)
+{
+  uint8_t tmp[sizeof(T)];
+  for (int16_t i = sizeof(T) - 1; i >= 0; i -= 1)
+  {
+    int16_t shift = (sizeof(T) - 1 - i) * 8;
+    tmp[i] = (data >> shift) & 0xff;
+  }
+
+  data = *reinterpret_cast<T*>(tmp);
+}
+
+template <typename T>
 T serial_get_data()
 {
   T data = 0;
-#if 0
-  uint8_t *p_data = reinterpret_cast<uint8_t*>(&data);
-  for (int16_t i = sizeof(T) - 1; i >= 0; i -= 1)
-    p_data[i] = serial_wait_byte();
-  D_PRINT(sizeof(T));
-#else
   size_t byte_count = 0;
   while (byte_count == 0 && byte_count != sizeof(T))
     byte_count = Serial.readBytes(reinterpret_cast<uint8_t*>(&data), sizeof(T));
+
   D_PRINT(byte_count);
-#endif
   D_PRINT(data);
   return data;
 }
 
-auto g_ina219 = unique_ptr<Adafruit_INA219>(new Adafruit_INA219);
+auto g_ina219 = unique_ptr<Adafruit_INA219>(new Adafruit_INA219());
+
+// SoftwareSerial DebugSerial(0, 1);
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
+  // DebugSerial.begin(9600);
+  // DebugSerial.println("Hello, DebugSerail!");
   
   if (!g_ina219->begin())
   {
-#ifndef DEBUG_INA219_DISABLED 
+// #ifndef DEBUG_INA219_DISABLED 
     panic("Failed to find INA219 chip!");
-#endif
+// #endif
   }
 
   g_ina219->setCalibration_32V_2A();
@@ -90,15 +102,14 @@ void setup()
 
 void loop() 
 {
-/*
   float busV = g_ina219->getBusVoltage_V();
   float mV = g_ina219->getShuntVoltage_mV();
-  float mA = g_ina219->getCurrent_mA();
+  // float mA = g_ina219->getCurrent_mA();
   D_PRINT(busV);
-  D_PRINT(mA);
+  // D_PRINT(mA);
   D_PRINT(mV);
   return;
-*/
+
   char command_pc = serial_get_data<char>();
  
   // digitalWrite(led_pin, HIGH); // включаем светодиод 
@@ -111,23 +122,31 @@ void loop()
     {
       case 'L':
       {
-        uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
-        D_PRINT(rotate / Monochr::to_nm);
-        D_PRINT(rotate);
-        for (uint32_t i = 0; i <= rotate; i++)
-          // monochr.turn_left();
+        uint16_t rotate_nm = serial_get_data<uint16_t>();
+        swap_endians(rotate_nm);
+        uint32_t turns = Monochr::nm2turn * static_cast<uint32_t>(rotate_nm);
+        for (uint32_t i = 0; i < turns; i++)
+          monochr.turn_left();
         
         command_pc = 'K';
       } break;
           
       case 'R':
       {
-        uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
-        D_PRINT(rotate / Monochr::to_nm);
-        D_PRINT(rotate);
-        for (uint32_t i = 0; i <= rotate; i++) 
-          // monochr.turn_right();
+        uint16_t rotate_nm = serial_get_data<uint16_t>();
+        swap_endians(rotate_nm);
+        uint32_t turns = Monochr::nm2turn * static_cast<uint32_t>(rotate_nm);
+        for (uint32_t i = 0; i < turns; i++)
+          monochr.turn_right();
         
+        command_pc = 'K';
+      } break;
+
+      case 'A':
+      {
+        float voltage = 0.0f; // ACP
+        swap_endians(voltage);
+        // Serial.print(reinterpret_cast<uint8_t*>(&voltage));
         command_pc = 'K';
       } break;
       
