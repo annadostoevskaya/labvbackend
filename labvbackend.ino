@@ -3,7 +3,7 @@ Author: github.com/annadostoevskaya
 File: labvbackend.ino
 Date: 12/09/23 14:22:03
 
-Description: <empty> 
+Description: Orange - TX, Blue - RX
 */
 
 #include <stdint.h>
@@ -49,7 +49,7 @@ template <typename T>
 T serial_get_data()
 {
   T data = 0;
-#if 0
+#if 1
   uint8_t *p_data = reinterpret_cast<uint8_t*>(&data);
   for (int16_t i = sizeof(T) - 1; i >= 0; i -= 1)
     p_data[i] = serial_wait_byte();
@@ -68,7 +68,7 @@ auto g_ina219 = unique_ptr<Adafruit_INA219>(new Adafruit_INA219);
 
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   
   if (!g_ina219->begin())
   {
@@ -87,6 +87,8 @@ void setup()
 
 ////////////////////////////////////////////////////////
 // loop.c
+
+//SoftwareSerial DebugSerial();
 
 void loop() 
 {
@@ -112,10 +114,10 @@ void loop()
       case 'L':
       {
         uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
-        D_PRINT(rotate / Monochr::to_nm);
-        D_PRINT(rotate);
-        for (uint32_t i = 0; i <= rotate; i++)
-          // monochr.turn_left();
+        // D_PRINT(rotate / Monochr::to_nm);
+        // D_PRINT(rotate);
+        for (uint32_t i = 0; i < rotate; i++)
+          monochr.turn_left();
         
         command_pc = 'K';
       } break;
@@ -123,10 +125,10 @@ void loop()
       case 'R':
       {
         uint32_t rotate = Monochr::to_nm * static_cast<uint32_t>(serial_get_data<uint16_t>());
-        D_PRINT(rotate / Monochr::to_nm);
-        D_PRINT(rotate);
-        for (uint32_t i = 0; i <= rotate; i++) 
-          // monochr.turn_right();
+        // D_PRINT(rotate / Monochr::to_nm);
+        // D_PRINT(rotate);
+        for (uint32_t i = 0; i < rotate; i++)
+          monochr.turn_right();
         
         command_pc = 'K';
       } break;
