@@ -8,8 +8,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "Checkout ${{ github.repository }}."
+
+      - name: Install dependencies
+        run: |
+          apt-get install avrdude
+      
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+
       - run: echo "Status ${{ job.status }}."
       
