@@ -7,8 +7,9 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: echo "Checkout: ${{ github.repository }}."
+      - run: echo "Checkout ${{ github.repository }}."
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
-      - run: echo "Status: ${{ job.status }}."
+      - run: echo "Status ${{ job.status }}."
+      
