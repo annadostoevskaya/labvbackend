@@ -8,10 +8,11 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "Checkout ${{ github.repository }}."
-
+      
       - name: Install dependencies
+      # flex byacc bison uisp
         run: |
-          sudo apt-get install -y avrdude
+          sudo apt-get install -y binutils gcc-avr avr-libc avrdude 
       
       - name: List files in the repository
         run: |
