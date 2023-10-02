@@ -100,6 +100,8 @@ void setup()
 ////////////////////////////////////////////////////////
 // loop.c
 
+//SoftwareSerial DebugSerial();
+
 void loop() 
 {
   float busV = g_ina219->getBusVoltage_V();

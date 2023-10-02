@@ -1,0 +1,22 @@
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:    
+      - name: Check out repository code
+        uses: actions/checkout@master
+      - run: echo "Checkout ${{ github.repository }}."
+      
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+
+      - name: Install Platform
+        run: arduino-cli core install arduino:avr
+
+      - name: Install dependencies
+        run: arduino-cli lib install "Adafruit INA219@1.2.1"
+      
+      - name: Compile
+        run: ./build.sh
+      
