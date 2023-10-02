@@ -15,6 +15,10 @@ jobs:
       - name: Install Platform
         run: |
           arduino-cli core install arduino:avr
+
+      - name: Install dependencies
+        run: |
+          arduino-cli lib install Adafruit_INA219@1.2.2
       
       - name: Compile
         run: |
