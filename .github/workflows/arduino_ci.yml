@@ -14,7 +14,7 @@ jobs:
       
       - name: Compile
         run: |
-          arduino-cli compile
+          arduino-cli compile -fqbn=arduino:avr:uno -ide-version=10819
       
       - name: List files in the repository
         run: |
