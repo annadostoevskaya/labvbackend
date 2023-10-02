@@ -3,28 +3,21 @@ run-name: ${{ github.actor }}
 on: [push]
 jobs:
   build:
-    strategy:
-      matrix:
-        arduino-platform: ["arduino:avr"]
-        include:
-          - arduino-platform: "arduino:avr"
-            fqbn: "arduino:avr:uno"
     runs-on: ubuntu-latest
     steps:    
       - name: Check out repository code
         uses: actions/checkout@master
       - run: echo "Checkout ${{ github.repository }}."
-
-      - name: Setup Arduino CLI
-        uses: arduino/setup-arduino-cli@v1.1.1
         
-      - name: Install platform
+      - name: Instaling arduino...
         run: |
-          arduino-cli core update-index
-          arduino-cli core install $
-
-      - name: Compile Sketch
-        run: arduino-cli compile --fqbn $ labvbackend --warnings more 
+          sudo apt update |
+          sudo apt upgrade | 
+          sudo apt install arduino
+      
+      - name: Compiling...
+        run: |
+          /usr/share/arduino/arduino-builder --help
       
       - name: List files in the repository
         run: |
