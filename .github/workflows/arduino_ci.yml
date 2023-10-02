@@ -18,7 +18,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          arduino-cli lib install Adafruit_INA219@1.2.2
+          arduino-cli lib install Adafruit_INA219@1.2.1
       
       - name: Compile
         run: |
