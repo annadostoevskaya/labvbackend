@@ -11,8 +11,6 @@ jobs:
         
       - name: Instaling arduino...
         run: |
-          sudo apt update |
-          sudo apt upgrade | 
           sudo apt install arduino
       
       - name: Compiling...
