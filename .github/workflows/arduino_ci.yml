@@ -14,7 +14,7 @@ jobs:
       
       - name: Compile
         run: |
-          arduino-cli --help
+          arduino-cli compile
       
       - name: List files in the repository
         run: |
