@@ -144,8 +144,8 @@ void loop()
 
       case 'A':
       {
-        float voltage = 0.0f; // ACP
-        swap_endians(voltage);
+        // float voltage = 0.0f; // ACP
+        // swap_endians(voltage);
         // Serial.print(reinterpret_cast<uint8_t*>(&voltage));
         command_pc = 'K';
       } break;
