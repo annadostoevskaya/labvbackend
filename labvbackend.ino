@@ -81,7 +81,6 @@ void setup()
   Serial.begin(9600);
   // DebugSerial.begin(9600);
   // DebugSerial.println("Hello, DebugSerail!");
-
   
   if (!g_ina219->begin())
   {
@@ -125,7 +124,6 @@ void loop()
     {
       case 'L':
       {
-
         uint16_t rotate_nm = serial_get_data<uint16_t>();
         swap_endians(rotate_nm);
         uint32_t turns = Monochr::nm2turn * static_cast<uint32_t>(rotate_nm);
