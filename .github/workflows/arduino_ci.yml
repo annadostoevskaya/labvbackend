@@ -8,14 +8,13 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@master
       - run: echo "Checkout ${{ github.repository }}."
-        
-      - name: Instaling arduino...
-        run: |
-          sudo apt install arduino
       
-      - name: Compiling...
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+      
+      - name: Compile
         run: |
-          /usr/share/arduino/arduino-builder --help
+          arduino-cli --help
       
       - name: List files in the repository
         run: |
