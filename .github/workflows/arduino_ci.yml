@@ -11,6 +11,10 @@ jobs:
       
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v1
+
+      - name: Install Platform
+        run: |
+          arduino-cli core install arduino:avr
       
       - name: Compile
         run: |
