@@ -12,7 +12,7 @@ Description: Orange - TX, Blue - RX
 #include "unique_ptr.h"
 
 #define DEBUG_ADS1115_DISABLED
-// #define RELEASE_MODE
+#define RELEASE_MODE
 #ifndef RELEASE_MODE
 # define DEBUG_MODE
 #endif
@@ -69,6 +69,12 @@ T serial_get_data()
   return data;
 }
 
+template <typename T>
+size_t serial_put_data(T data)
+{
+  return Serial.write(reinterpret_cast<uint8_t*>(&data), sizeof(T));
+}
+
 auto g_ads1115 = unique_ptr<Adafruit_ADS1115>(new Adafruit_ADS1115());
 
 void setup()
@@ -77,9 +83,9 @@ void setup()
   
   if (!g_ads1115->begin())
   {
-// #ifndef DEBUG_ADS1115_DISABLED 
+#ifndef DEBUG_ADS1115_DISABLED 
     panic("Failed to find ADS1115 chip!");
-// #endif
+#endif
   }
 
   g_ads1115->setGain(GAIN_TWOTHIRDS);
@@ -88,14 +94,27 @@ void setup()
 ////////////////////////////////////////////////////////
 // loop.c
 
+union f32_i32
+{
+  float f32;
+  int32_t i32;
+};
+
 void loop() 
 {
-  int16_t adc0 = g_ads1115->getLastConversionResults();
-  D_PRINT(adc0);
-  return;
-
   char command_pc = serial_get_data<char>();
- 
+  if (command_pc == 'A')
+  {
+    f32_i32 mV = {};
+    mV.f32 = 3334.5f;
+    swap_endians(mV.i32);
+    serial_put_data(mV);
+        
+    Serial.write('K');    
+  }
+
+  return;
+   
   bool processing = true;
   while (processing)
   {
@@ -125,15 +144,19 @@ void loop()
 
       case 'A':
       {
-        // float voltage = 0.0f; // ACP
-        // swap_endians(voltage);
-        // Serial.print(reinterpret_cast<uint8_t*>(&voltage));
+        int16_t adc0 = g_ads1115->readADC_SingleEnded(0);
+        f32_i32 mV = {};
+        mV.f32 = 0.1875f * (float)adc0;
+        swap_endians(mV.i32);
+        serial_put_data(mV);
+        
         command_pc = 'K';
       } break;
       
       case 'K':
       {
         Serial.write('K');
+        Serial.flush();
         command_pc = '\0';
       } break;
 
