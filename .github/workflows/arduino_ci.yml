@@ -6,7 +6,6 @@ jobs:
     steps:    
       - name: Check out repository code
         uses: actions/checkout@master
-      - run: echo "Checkout ${{ github.repository }}."
       
       - name: Install Arduino CLI
         uses: arduino/setup-arduino-cli@v1
@@ -15,7 +14,7 @@ jobs:
         run: arduino-cli core install arduino:avr
 
       - name: Install dependencies
-        run: arduino-cli lib install "Adafruit INA219@1.2.1"
+        run: arduino-cli lib install "Adafruit ADS1X15@2.4.0"
       
       - name: Compile
         run: ./build.sh

@@ -15,7 +15,7 @@ public:
   enum 
   { 
     step_delay = 4,
-    nm2turn = 75 // NOTE(annad): monochr.h, rotate = 75 ~ 1nm
+    nm2turns = 75 // NOTE(annad): monochr.h, rotate = 75 ~ 1nm
   };
 
   union

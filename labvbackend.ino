@@ -7,12 +7,11 @@ Description: Orange - TX, Blue - RX
 */
 
 #include <stdint.h>
-#include <Adafruit_INA219.h>
-// #include <SoftwareSerial.h>
+#include <Adafruit_ADS1X15.h>
 #include "monochr.h"
 #include "unique_ptr.h"
 
-#define DEBUG_INA219_DISABLED
+#define DEBUG_ADS1115_DISABLED
 // #define RELEASE_MODE
 #ifndef RELEASE_MODE
 # define DEBUG_MODE
@@ -29,8 +28,6 @@ Description: Orange - TX, Blue - RX
 #endif
 
 Monochr monochr(10, 11, 12, 13);
-
-// int16_t led_pin = 13; // пин, к которому подключен светодиод
 
 void panic(const char *msg)
 {
@@ -72,51 +69,33 @@ T serial_get_data()
   return data;
 }
 
-auto g_ina219 = unique_ptr<Adafruit_INA219>(new Adafruit_INA219());
-
-// SoftwareSerial DebugSerial(0, 1);
+auto g_ads1115 = unique_ptr<Adafruit_ADS1115>(new Adafruit_ADS1115());
 
 void setup()
 {
   Serial.begin(9600);
-  // DebugSerial.begin(9600);
-  // DebugSerial.println("Hello, DebugSerail!");
   
-  if (!g_ina219->begin())
+  if (!g_ads1115->begin())
   {
-// #ifndef DEBUG_INA219_DISABLED 
-    panic("Failed to find INA219 chip!");
+// #ifndef DEBUG_ADS1115_DISABLED 
+    panic("Failed to find ADS1115 chip!");
 // #endif
   }
 
-  g_ina219->setCalibration_32V_2A();
-  
-  D_PRINT((size_t)g_ina219.get());
-  D_PRINT((size_t)&g_ina219);
-  
-  // pinMode(led_pin, OUTPUT); //светодиод
+  g_ads1115->setGain(GAIN_TWOTHIRDS);
 }
 
 ////////////////////////////////////////////////////////
 // loop.c
 
-//SoftwareSerial DebugSerial();
-
 void loop() 
 {
-  float busV = g_ina219->getBusVoltage_V();
-  float mV = g_ina219->getShuntVoltage_mV();
-  // float mA = g_ina219->getCurrent_mA();
-  D_PRINT(busV);
-  // D_PRINT(mA);
-  D_PRINT(mV);
+  int16_t adc0 = g_ads1115->getLastConversionResults();
+  D_PRINT(adc0);
   return;
 
   char command_pc = serial_get_data<char>();
  
-  // digitalWrite(led_pin, HIGH); // включаем светодиод 
-  // delay(250); // ждем
-    
   bool processing = true;
   while (processing)
   {
@@ -126,7 +105,7 @@ void loop()
       {
         uint16_t rotate_nm = serial_get_data<uint16_t>();
         swap_endians(rotate_nm);
-        uint32_t turns = Monochr::nm2turn * static_cast<uint32_t>(rotate_nm);
+        uint32_t turns = Monochr::nm2turns * static_cast<uint32_t>(rotate_nm);
         for (uint32_t i = 0; i < turns; i++)
           monochr.turn_left();
         
@@ -137,7 +116,7 @@ void loop()
       {
         uint16_t rotate_nm = serial_get_data<uint16_t>();
         swap_endians(rotate_nm);
-        uint32_t turns = Monochr::nm2turn * static_cast<uint32_t>(rotate_nm);
+        uint32_t turns = Monochr::nm2turns * static_cast<uint32_t>(rotate_nm);
         for (uint32_t i = 0; i < turns; i++)
           monochr.turn_right();
         
