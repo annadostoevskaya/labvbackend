@@ -7,7 +7,7 @@ Description: Orange - TX, Blue - RX
 */
 
 #include <stdint.h>
-#include <Adafruit_ADS1X15.h>
+#include <Adafruit_ADS1X15.h> // "Adafruit ADS1X15"@2.4.1
 #include "monochr.h"
 #include "unique_ptr.h"
 
