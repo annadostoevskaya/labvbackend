@@ -103,17 +103,17 @@ union f32_i32
 void loop() 
 {
   char command_pc = serial_get_data<char>();
-  if (command_pc == 'A')
-  {
-    f32_i32 mV = {};
-    mV.f32 = 3334.5f;
-    swap_endians(mV.i32);
-    serial_put_data(mV);
-        
-    Serial.write('K');    
-  }
-
-  return;
+//  if (command_pc == 'A')
+//  {
+//    f32_i32 mV = {};
+//    mV.f32 = 3334.5f;
+//    swap_endians(mV.i32);
+//    serial_put_data(mV);
+//        
+//    Serial.write('K');
+//  }
+//
+//  return;
    
   bool processing = true;
   while (processing)
@@ -150,7 +150,7 @@ void loop()
         swap_endians(mV.i32);
         serial_put_data(mV);
         
-        command_pc = 'K';
+        command_pc = '\0';
       } break;
       
       case 'K':
