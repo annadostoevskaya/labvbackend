@@ -30,7 +30,7 @@ jobs:
     needs: build
     steps:
       - name: Download artifacts
-        uses: actions/download-artifacts@v3
+        uses: actions/download-artifact@v3
         with:
           name: debug
       - name: Archive artifacts
