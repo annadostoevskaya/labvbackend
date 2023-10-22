@@ -18,4 +18,30 @@ jobs:
       
       - name: Compile
         run: ./build.sh
-      
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with: 
+          name: debug
+          path: ./debug
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifacts@v3
+        with:
+          name: debug
+      - name: Archive artifacts
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: debug.zip
+      - name: Create GitHub Release
+        id: create-release
+        uses: actions/create-release@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }} 
