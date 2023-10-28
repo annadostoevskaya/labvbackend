@@ -3,7 +3,7 @@ Author: github.com/annadostoevskaya
 File: monochr.h
 Date: 21/09/23 23:56:19
 
-Description: <empty>
+Description: // 04000 - 06674 = 267.4nm per 20000turns (74,79431563201197nm)
 */
 
 #pragma once

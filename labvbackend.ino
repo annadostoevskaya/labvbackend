@@ -11,7 +11,6 @@ Description: Orange - TX, Blue - RX
 #include "monochr.h"
 #include "unique_ptr.h"
 
-#define DEBUG_ADS1115_DISABLED
 #define RELEASE_MODE
 #ifndef RELEASE_MODE
 # define DEBUG_MODE
@@ -64,8 +63,6 @@ T serial_get_data()
   while (byte_count == 0 && byte_count != sizeof(T))
     byte_count = Serial.readBytes(reinterpret_cast<uint8_t*>(&data), sizeof(T));
 
-  D_PRINT(byte_count);
-  D_PRINT(data);
   return data;
 }
 
@@ -81,14 +78,12 @@ void setup()
 {
   Serial.begin(9600);
   
-  if (!g_ads1115->begin())
+  if (g_ads1115->begin())
   {
-#ifndef DEBUG_ADS1115_DISABLED 
-    panic("Failed to find ADS1115 chip!");
-#endif
+    g_ads1115->setGain(GAIN_TWOTHIRDS);
   }
-
-  g_ads1115->setGain(GAIN_TWOTHIRDS);
+  else 
+    panic("Failed to find ADS1115 chip!");
 }
 
 ////////////////////////////////////////////////////////
@@ -101,19 +96,8 @@ union f32_i32
 };
 
 void loop() 
-{
+{  
   char command_pc = serial_get_data<char>();
-//  if (command_pc == 'A')
-//  {
-//    f32_i32 mV = {};
-//    mV.f32 = 3334.5f;
-//    swap_endians(mV.i32);
-//    serial_put_data(mV);
-//        
-//    Serial.write('K');
-//  }
-//
-//  return;
    
   bool processing = true;
   while (processing)
@@ -130,7 +114,7 @@ void loop()
         
         command_pc = 'K';
       } break;
-          
+ 
       case 'R':
       {
         uint16_t rotate_nm = serial_get_data<uint16_t>();
@@ -144,12 +128,18 @@ void loop()
 
       case 'A':
       {
-        int16_t adc0 = g_ads1115->readADC_SingleEnded(0);
         f32_i32 mV = {};
-        mV.f32 = 0.1875f * (float)adc0;
+        int num = 10;
+        for (int i = 0; i < num; i += 1)
+        {
+          int16_t adc0 = g_ads1115->readADC_SingleEnded(0);
+          mV.f32 += (0.1875f * (float)adc0);
+        }
+        mV.f32 /= ((float)num);
+        
         swap_endians(mV.i32);
         serial_put_data(mV);
-        
+
         command_pc = '\0';
       } break;
       
