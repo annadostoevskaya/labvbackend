@@ -38,7 +38,8 @@ jobs:
       - name: Archive artifacts
         uses: thedoctor0/zip-release@master
         with:
-          filename: ./debug.zip
+          type: 'zip'
+          filename: 'debug.zip'
 
       - name: Create GitHub Release
         id: create-release
