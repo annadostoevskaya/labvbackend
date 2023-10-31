@@ -38,11 +38,11 @@ jobs:
       - name: lists
       - run: ls -alR
       
-      - name: Archive artifacts
-        uses: thedoctor0/zip-release@master
-        with:
-          type: 'zip'
-          filename: 'debug.zip'
+      # - name: Archive artifacts
+      #   uses: thedoctor0/zip-release@master
+      #   with:
+      #     type: 'zip'
+      #     filename: 'debug.zip'
 
       # - name: Create GitHub Release
       #   id: create-release
