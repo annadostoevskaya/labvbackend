@@ -36,7 +36,7 @@ jobs:
           path: ./debug.zip
       
       - name: lists
-      - run: ls -alR
+        run: ls -alR
       
       # - name: Archive artifacts
       #   uses: thedoctor0/zip-release@master
