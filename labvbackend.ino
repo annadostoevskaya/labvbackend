@@ -96,7 +96,13 @@ union f32_i32
 };
 
 void loop() 
-{  
+{
+  
+  Serial.println("Hello, World!");
+  
+  return 0;
+
+  
   char command_pc = serial_get_data<char>();
    
   bool processing = true;
