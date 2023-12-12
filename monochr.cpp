@@ -10,8 +10,6 @@ Description: <empty>
 #include <Arduino.h>
 #include "monochr.h"
 
-Monochr::~Monochr() = default;
-
 Monochr::Monochr(int16_t pin_1, int16_t pin_2, int16_t pin_3, int16_t pin_4) 
   : pin_1(pin_1)
   , pin_2(pin_2)
@@ -25,7 +23,8 @@ Monochr::Monochr(int16_t pin_1, int16_t pin_2, int16_t pin_3, int16_t pin_4)
   }
 };
 
-void Monochr::turn_right()
+template<>
+void Monochr::turn<Monochr::DirRight>()
 {
   for (int16_t i = 0; i < (int16_t)(sizeof(pins) / sizeof(*pins)); i += 1)
   {
@@ -35,7 +34,8 @@ void Monochr::turn_right()
   }
 }
 
-void Monochr::turn_left()
+template<>
+void Monochr::turn<Monochr::DirLeft>()
 {
   for (int16_t i = sizeof(pins) / sizeof(*pins) - 1; i >= 0; i -= 1)
   {

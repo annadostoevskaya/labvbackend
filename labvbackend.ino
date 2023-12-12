@@ -36,13 +36,7 @@ void panic(const char *msg)
 #endif
 }
 
-uint8_t serial_wait_byte()
-{
-  while (Serial.available() == 0);
-  return (uint8_t)Serial.read();
-}
-
-template <typename T>
+template<typename T>
 void swap_endians(T& data)
 {
   uint8_t tmp[sizeof(T)];
@@ -55,7 +49,7 @@ void swap_endians(T& data)
   data = *reinterpret_cast<T*>(tmp);
 }
 
-template <typename T>
+template<typename T>
 T serial_get_data()
 {
   T data = 0;
@@ -66,7 +60,7 @@ T serial_get_data()
   return data;
 }
 
-template <typename T>
+template<typename T>
 size_t serial_put_data(T data)
 {
   return Serial.write(reinterpret_cast<uint8_t*>(&data), sizeof(T));
@@ -95,16 +89,11 @@ union f32_i32
   int32_t i32;
 };
 
-void loop() 
-{
-  
-  Serial.println("Hello, World!");
-  
-  return 0;
 
-  
+void loop() 
+{ 
   char command_pc = serial_get_data<char>();
-   
+
   bool processing = true;
   while (processing)
   {
@@ -116,18 +105,18 @@ void loop()
         swap_endians(rotate_nm);
         uint32_t turns = Monochr::nm2turns * static_cast<uint32_t>(rotate_nm);
         for (uint32_t i = 0; i < turns; i++)
-          monochr.turn_left();
+          monochr.turn<Monochr::DirLeft>();
         
         command_pc = 'K';
       } break;
- 
+
       case 'R':
       {
         uint16_t rotate_nm = serial_get_data<uint16_t>();
         swap_endians(rotate_nm);
         uint32_t turns = Monochr::nm2turns * static_cast<uint32_t>(rotate_nm);
         for (uint32_t i = 0; i < turns; i++)
-          monochr.turn_right();
+          monochr.turn<Monochr::DirRight>();
         
         command_pc = 'K';
       } break;
@@ -141,11 +130,12 @@ void loop()
           int16_t adc0 = g_ads1115->readADC_SingleEnded(0);
           mV.f32 += (0.1875f * (float)adc0);
         }
+        
         mV.f32 /= ((float)num);
         
         swap_endians(mV.i32);
         serial_put_data(mV);
-
+        Serial.flush();
         command_pc = '\0';
       } break;
       

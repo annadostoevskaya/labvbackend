@@ -12,11 +12,8 @@ Description: // 04000 - 06674 = 267.4nm per 20000turns (74,79431563201197nm)
 class Monochr
 {
 public:
-  enum 
-  { 
-    step_delay = 4,
-    nm2turns = 75 // NOTE(annad): monochr.h, rotate = 75 ~ 1nm
-  };
+  struct DirRight {};
+  struct DirLeft  {};
 
   union
   {
@@ -29,9 +26,16 @@ public:
       int16_t pin_4;
     };
   };
+  
+  enum 
+  { 
+    step_delay = 4,
+    nm2turns = 75, // NOTE(annad): monochr.h, rotate = 75 ~ 1nm
+  };
 
   Monochr(int16_t pin_1, int16_t pin_2, int16_t pin_3, int16_t pin_4);
-  ~Monochr();
-  void turn_right();
-  void turn_left();
+  ~Monochr() = default;
+
+  template<typename T>
+  void turn(); // NOTE(annad): it's a bit overengineering.  
 };
