@@ -124,7 +124,7 @@ void loop()
       case 'A':
       {
         f32_i32 mV = {};
-        int num = 10;
+        int num = 50;
         for (int i = 0; i < num; i += 1)
         {
           int16_t adc0 = g_ads1115->readADC_SingleEnded(0);
